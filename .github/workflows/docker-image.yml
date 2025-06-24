@@ -1,0 +1,40 @@
+name: Build CV PDF
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Build Docker image
+      run: docker build -t resume-builder .
+
+    - name: Run build inside container
+      run: docker run --rm -v ${{ github.workspace }}:/cv resume-builder
+
+    - name: Upload PDF as artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: Resume PDF
+        path: CV/main.pdf
+    
+    - name: Set release version
+      id: vars
+      run: echo "version=resume-$(date +'%Y-%m-%d-%H%M')" >> "$GITHUB_OUTPUT"
+    
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ steps.vars.outputs.version }}
+        name: "Resume Release ${{ steps.vars.outputs.version }}"
+        files: CV/main.pdf
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
