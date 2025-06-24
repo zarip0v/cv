@@ -34,7 +34,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ steps.vars.outputs.version }}
-        name: "Resume Release ${{ steps.vars.outputs.version }}"
+        name: "${{ steps.vars.outputs.version }}"
         files: CV/main.pdf
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
